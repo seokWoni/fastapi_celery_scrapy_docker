@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual Environment
+.dev/
+.venv/
+venv/
+env/
+
+# VSCode
+.vscode/
+
+# Cursor
+.cursor/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# IDE
+.idea/
+
+# macOS
+.DS_Store
