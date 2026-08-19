@@ -18,6 +18,9 @@ env/
 # Environment
 .env
 
+# RabbitMQ credentials (keep enabled_plugins)
+rabbitmq/erlang_cookie
+
 # Logs
 *.log
 
