@@ -1,10 +1,28 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "1"
+
 services:
   rabbitmq:
     image: rabbitmq:3-management
-    ports: ["5672:5672", "15672:15672"]
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secretcookie}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    volumes:
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - rabbitmq_data:/var/lib/rabbitmq
+    logging: *default-logging
   redis:
     image: redis:7-alpine
     ports: ["6379:6379"]
+    logging: *default-logging
   api:
     build: .
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
@@ -13,6 +31,7 @@ services:
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+    logging: *default-logging
   worker:
     build: .
     command: celery -A app.celery_app worker --pool=solo -l info
@@ -20,3 +39,7 @@ services:
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       CELERY_RESULT_BACKEND: redis://redis:6379/0
+    logging: *default-logging
+
+volumes:
+  rabbitmq_data:
