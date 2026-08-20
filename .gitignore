@@ -35,3 +35,6 @@ rabbitmq/erlang_cookie
 
 # macOS
 .DS_Store
+
+# src
+src/
