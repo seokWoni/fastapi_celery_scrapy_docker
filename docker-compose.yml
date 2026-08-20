@@ -4,6 +4,15 @@ x-logging: &default-logging
     max-size: "10m"
     max-file: "1"
 
+x-python-app: &python-app
+  build:
+    context: ./python
+    dockerfile: Dockerfile
+  image: fastapi-celery-scrapy:py310
+  volumes:
+    - ./src:/app
+  logging: *default-logging
+
 services:
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -25,16 +34,14 @@ services:
       - "127.0.0.1:6379:6379"
     logging: *default-logging
   api:
-    build: .
+    <<: *python-app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     ports: ["8000:8000"]
     depends_on: [rabbitmq, redis]
-    logging: *default-logging
   worker:
-    build: .
+    <<: *python-app
     command: celery -A app.celery_app worker --pool=solo -l info
     depends_on: [rabbitmq, redis]
-    logging: *default-logging
 
 volumes:
   rabbitmq_data:
