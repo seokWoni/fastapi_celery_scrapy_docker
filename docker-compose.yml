@@ -5,9 +5,6 @@ x-logging: &default-logging
     max-file: "1"
 
 x-python-app: &python-app
-  build:
-    context: ./python
-    dockerfile: Dockerfile
   image: fastapi-celery-scrapy:py310
   volumes:
     - ./src:/app
@@ -18,7 +15,7 @@ services:
     image: rabbitmq:3.13-management
     hostname: rabbitmq
     ports:
-      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:5673:5672"
       - "127.0.0.1:15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
@@ -28,20 +25,31 @@ services:
       - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - rabbitmq_data:/var/lib/rabbitmq
     logging: *default-logging
+
   redis:
     image: redis:7-alpine
     ports:
       - "127.0.0.1:6379:6379"
     logging: *default-logging
+
   api:
     <<: *python-app
+    build:
+      context: ./python
+      dockerfile: Dockerfile
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    ports: ["8000:8000"]
-    depends_on: [rabbitmq, redis]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - redis
+
   worker:
     <<: *python-app
     command: celery -A app.celery_app worker --pool=solo -l info
-    depends_on: [rabbitmq, redis]
+    depends_on:
+      - rabbitmq
+      - redis
 
 volumes:
   rabbitmq_data:

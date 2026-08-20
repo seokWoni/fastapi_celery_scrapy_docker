@@ -13,7 +13,7 @@
 
 `hostname`과 `RABBITMQ_ERLANG_COOKIE`는 데이터 볼륨을 쓸 때 노드 인증이 깨지지 않도록 고정합니다.
 
-기동 후 브라우저에서 **http://localhost:15672** 로 접속합니다. 기본 계정은 `guest` / `guest` 입니다.
+기동 후 브라우저에서 **http://localhost:15672** 로 접속합니다. 기본 계정은 `admin` / `admin` 입니다.
 
 ## python
 
