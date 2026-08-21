@@ -6,10 +6,6 @@ x-logging: &default-logging
 
 x-python-app: &python-app
   image: fastapi-celery-scrapy:py310
-  env_file:
-    - ./src/.env
-  volumes:
-    - ./src:/app
   logging: *default-logging
 
 services:
@@ -36,22 +32,34 @@ services:
 
   api:
     <<: *python-app
-    build:
-      context: ./python
-      dockerfile: Dockerfile
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./src:/app
     ports:
       - "8000:8000"
     depends_on:
       - rabbitmq
       - redis
 
-  scraper:
+  worker:
     <<: *python-app
     command: celery -A app.celery_app worker --pool=solo -l info
+    volumes:
+      - ./src:/app
     depends_on:
       - rabbitmq
       - redis
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db:/var/lib/mysql
+    ports:
+      - "3306:3306"
 
 volumes:
   rabbitmq_data:

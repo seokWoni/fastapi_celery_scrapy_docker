@@ -38,3 +38,6 @@ rabbitmq/erlang_cookie
 
 # src
 src/
+
+#database
+db/

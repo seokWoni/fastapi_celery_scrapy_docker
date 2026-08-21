@@ -58,3 +58,7 @@ vine==5.1.0
 w3lib==2.4.1
 wcwidth==0.8.2
 zope.interface==8.5
+redis==8.1.0
+python-dotenv==1.2.3
+SQLAlchemy==2.0.43
+PyMySQL==1.1.1
